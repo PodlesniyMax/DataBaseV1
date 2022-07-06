@@ -69,6 +69,8 @@ static int get_command(const char *command)
 		cmd = QUERY;
 	} else if (strcmp(command, "list") == 0) {
 		cmd = LIST;
+	} else if (strcmp(command, "remove") == 0) {
+		cmd = REMOVE;
 	} else {
 		cmd = -1;
 	}

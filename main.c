@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <inttypes.h>
 
 #include "db_types.h"
 #include "validate_input.h"
+#include "command.h"
 
 int main(int argc, char **argv)
 {
@@ -18,6 +16,16 @@ int main(int argc, char **argv)
 		free(inp);
 		exit(EXIT_FAILURE);
 	}
+
+	switch (inp->command) {
+		case INIT:
+			init_db(inp->filename);
+			break;
+		case REMOVE:
+			remove_db(inp->filename);
+			break;
+	}
+
 	free(inp);
 	return 0;
 }

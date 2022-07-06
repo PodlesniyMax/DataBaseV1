@@ -6,7 +6,8 @@ enum command {
 	INIT,
 	ADD,
 	QUERY,
-	LIST
+	LIST,
+	REMOVE
 };
 
 #endif
