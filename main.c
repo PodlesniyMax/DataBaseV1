@@ -12,6 +12,7 @@ int main(int argc, char **argv)
 	if (inp->error) {
 		fprintf(stderr, "%s", inp->error);
 		fprintf(stderr, "Usage: %s filename command [identifier]\n", argv[0]);
+		fprintf(stderr, "\tMax length of identifier is %d\n", ID_SIZE - 1);
 		free(inp->error);
 		free(inp);
 		exit(EXIT_FAILURE);
@@ -23,6 +24,9 @@ int main(int argc, char **argv)
 			break;
 		case REMOVE:
 			remove_db(inp->filename);
+			break;
+		case ADD:
+			add_record(inp->filename, inp->id);
 			break;
 	}
 

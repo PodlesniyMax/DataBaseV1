@@ -53,6 +53,12 @@ struct input *validate_input(int argc, char **argv)
 		inp->id = argv[3];
 	}
 
+	if (inp->id && strlen(inp->id) > ID_SIZE - 1) {
+		strcpy(err, "Too long identifier\n");
+		inp->error = err;
+		return inp;
+	}
+
 	free(err);
 	return inp;
 }
