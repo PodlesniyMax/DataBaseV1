@@ -8,6 +8,7 @@
 int main(int argc, char **argv)
 {
 	struct input *inp = NULL;
+
 	inp = validate_input(argc, argv);
 	if (inp->error) {
 		fprintf(stderr, "%s", inp->error);
@@ -27,6 +28,9 @@ int main(int argc, char **argv)
 			break;
 		case ADD:
 			add_record(inp->filename, inp->id);
+			break;
+		case QUERY:
+			query_record(inp->filename, inp->id);
 			break;
 	}
 

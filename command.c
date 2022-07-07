@@ -54,7 +54,8 @@ void remove_db(const char *filename)
 	}
 }
 
-void add_record(const char *filename, const char *id) {
+void add_record(const char *filename, const char *id)
+{
 	struct db_conf conf;
 	int fd, rec_pos;
 	size_t size;
@@ -80,6 +81,26 @@ void add_record(const char *filename, const char *id) {
 	}
 
 	close(fd);
+}
+
+void query_record(const char *filename, const char *id)
+{
+	struct record rec;
+	int fd, rec_pos, count = 0;
+
+	fd = open(filename, O_RDONLY);
+	if (fd == -1) {
+		perror(filename);
+		exit(EXIT_FAILURE);
+	}
+	rec_pos = search_record(fd, id);
+	if (rec_pos != -1) {
+		lseek(fd, rec_pos, SEEK_SET);
+		read(fd, &rec, sizeof(rec));
+		count = rec.count;
+	}
+
+	printf("Identifier: %s\nCount: %d\n", id, count);
 }
 
 static int search_record(int fd, const char *id)
@@ -135,6 +156,13 @@ static void update_db_config(int fd, struct db_conf conf)
 
 static void update_record(int fd, int rec_pos)
 {
+	struct record rec;
+
+	lseek(fd, rec_pos, SEEK_SET);
+	read(fd, &rec, sizeof(rec));
+	rec.count++;
+	lseek(fd, rec_pos, SEEK_SET);
+	write(fd, &rec, sizeof(rec));
 	printf("func: update_record\n");
 }
 
@@ -194,6 +222,7 @@ static int search_parent(int fd, int pos, const char *id)
 
 	lseek(fd, pos, SEEK_SET);
 	read(fd, &rec, sizeof(rec));
+	printf("search_parent: %s\n", rec.id);
 
 	state = strcmp(id, rec.id);
 	if (state < 0 && rec.left) {
