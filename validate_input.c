@@ -13,6 +13,7 @@ struct input validate_input(int argc, char **argv)
 
 	inp.filename = NULL;
 	inp.id = NULL;
+	inp.load_filename = NULL;
 	inp.command = -1;
 	inp.list_start = LIST_START;
 	inp.list_count = LIST_COUNT;
@@ -35,6 +36,14 @@ struct input validate_input(int argc, char **argv)
 			exit(EXIT_FAILURE);
 		}
 		inp.id = argv[3];
+	}
+
+	if (inp.command == LOAD) {
+		if (argc < 4) {
+			fprintf(stderr, "Too few arguments\n");
+			exit(EXIT_FAILURE);
+		}
+		inp.load_filename = argv[3];
 	}
 
 	if (inp.id && strlen(inp.id) > ID_SIZE - 1) {
@@ -68,6 +77,8 @@ static int get_command(const char *command)
 		cmd = LIST;
 	} else if (strcmp(command, "remove") == 0) {
 		cmd = REMOVE;
+	} else if (strcmp(command, "load") == 0) {
+		cmd = LOAD;
 	} else {
 		cmd = -1;
 	}

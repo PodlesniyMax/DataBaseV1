@@ -27,6 +27,9 @@ int main(int argc, char **argv)
 		case LIST:
 			list_records(inp);
 			break;
+		case LOAD:
+			load_file(inp);
+			break;
 	}
 
 	return 0;

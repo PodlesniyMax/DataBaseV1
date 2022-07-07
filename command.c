@@ -132,6 +132,11 @@ void list_records(struct input inp)
 	close(fd);
 }
 
+void load_file(struct input inp)
+{
+	printf("Load_file_func\n");
+}
+
 static int search_record(int fd, const char *id)
 {
 	struct db_conf conf;

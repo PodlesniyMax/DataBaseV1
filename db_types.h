@@ -11,12 +11,14 @@ enum command {
 	ADD,
 	QUERY,
 	LIST,
-	REMOVE
+	REMOVE,
+	LOAD
 };
 
 struct input {
 	char *filename,
-         *id;
+         *id,
+		 *load_filename;
 	int command;
 	int list_start;
 	int list_count;
