@@ -7,59 +7,50 @@
 
 static int get_command(const char *command);
 
-struct input *validate_input(int argc, char **argv)
+struct input validate_input(int argc, char **argv)
 {
-	struct input *inp = NULL;
-	char *err = NULL;
-	int err_size = 128;
+	struct input inp;
 
-	err = malloc(sizeof(char) * err_size);
-	if (!err) {
-		perror("In function validate_input");
-		exit(EXIT_FAILURE);
-	}
-
-	inp = malloc(sizeof(struct input));
-	if (!inp) {
-		perror("In function validate_input");
-		exit(EXIT_FAILURE);
-	}
-
-	inp->filename = NULL;
-	inp->id = NULL;
-	inp->error = NULL;
-	inp->command = -1;
+	inp.filename = NULL;
+	inp.id = NULL;
+	inp.command = -1;
+	inp.list_start = LIST_START;
+	inp.list_count = LIST_COUNT;
 
 	if (argc < 3) {
-		strcpy(err, "Too few arguments\n");
-		inp->error = err;
-		return inp;
+		fprintf(stderr, "Too few arguments\n");
+		exit(EXIT_FAILURE);
 	}
 
-	inp->filename = argv[1];
-	inp->command = get_command(argv[2]);
-	if (inp->command == -1) {
-		strcpy(err, "Wrong command\n");
-		inp->error = err;
-		return inp;
+	inp.filename = argv[1];
+	inp.command = get_command(argv[2]);
+	if (inp.command == -1) {
+		fprintf(stderr, "Wrong command\n");
+		exit(EXIT_FAILURE);
 	}
 
-	if (inp->command == ADD || inp->command == QUERY) {
+	if (inp.command == ADD || inp.command == QUERY) {
 		if (argc < 4) {
-			strcpy(err, "Too few arguments\n");
-			inp->error = err;
-			return inp;
+			fprintf(stderr, "Too few arguments\n");
+			exit(EXIT_FAILURE);
 		}
-		inp->id = argv[3];
+		inp.id = argv[3];
 	}
 
-	if (inp->id && strlen(inp->id) > ID_SIZE - 1) {
-		strcpy(err, "Too long identifier\n");
-		inp->error = err;
-		return inp;
+	if (inp.id && strlen(inp.id) > ID_SIZE - 1) {
+		fprintf(stderr, "Too long identifier\n");
+		exit(EXIT_FAILURE);
 	}
 
-	free(err);
+	if (inp.command == LIST) {
+		if (argc > 3) {
+			inp.list_start = atoi(argv[3]);
+		}
+		if (argc > 4) {
+			inp.list_count = atoi(argv[4]);
+		}
+	}
+
 	return inp;
 }
 

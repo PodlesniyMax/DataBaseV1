@@ -14,6 +14,14 @@ enum command {
 	REMOVE
 };
 
+struct input {
+	char *filename,
+         *id;
+	int command;
+	int list_start;
+	int list_count;
+};
+
 struct db_conf {
 	uint8_t start_position; /* Position of first record in the file */
 	uint8_t record_size;

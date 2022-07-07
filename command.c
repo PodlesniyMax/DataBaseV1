@@ -1,5 +1,3 @@
-//TODO update_record in function add_record
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,8 +9,6 @@
 
 #include "db_types.h"
 #include "command.h"
-
-//#define DEBUG
 
 static int search_record(int fd, const char *id);
 static void add_new_record(int fd, const char *id);
@@ -101,6 +97,39 @@ void query_record(const char *filename, const char *id)
 	}
 
 	printf("Identifier: %s\nCount: %d\n", id, count);
+	close(fd);
+}
+
+void list_records(struct input inp)
+{
+	struct db_conf conf;
+	struct record rec;
+	int fd, pos, buff_size, count, i;
+	uint8_t *buff;
+
+	buff_size = 100 * sizeof(rec);
+	buff = (uint8_t *)malloc(buff_size);
+
+	fd = open(inp.filename, O_RDONLY);
+	if (fd == -1) {
+		perror(inp.filename);
+		exit(EXIT_FAILURE);
+	}
+	read(fd, &conf, sizeof(conf));
+	pos = (int)conf.start_position + (inp.list_start * (int)conf.record_size);
+	lseek(fd, pos, SEEK_SET);
+	while (inp.list_count > 0) {
+		if (buff_size > inp.list_count * sizeof(rec)) {
+			buff_size = inp.list_count * sizeof(rec);
+		}
+		count = read(fd, buff, buff_size);
+		inp.list_count -= count;
+		for (i = 0; i < count; i += sizeof(rec)) {
+			memcpy(&rec, buff + i, sizeof(rec));
+			printf("Identifier: %s\nCount: %d\n\n", rec.id, rec.count);
+		}
+	}
+	close(fd);
 }
 
 static int search_record(int fd, const char *id)
