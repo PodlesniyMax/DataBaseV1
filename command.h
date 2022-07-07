@@ -3,7 +3,7 @@
 
 void init_db(const char *filename);
 void remove_db(const char *filename);
-void add_record(const char *filename, const char *id);
+void add_record(const char *filename, const char *id, int filedesc);
 void query_record(const char *filename, const char *id);
 void list_records(struct input inp);
 void load_file(struct input inp);

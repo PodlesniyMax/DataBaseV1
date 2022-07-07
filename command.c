@@ -50,15 +50,25 @@ void remove_db(const char *filename)
 	}
 }
 
-void add_record(const char *filename, const char *id)
+void add_record(const char *filename, const char *id, int filedesc)
 {
 	struct db_conf conf;
 	int fd, rec_pos;
 	size_t size;
 
-	fd = open(filename, O_RDWR);
+	if (filename) {
+		fd = open(filename, O_RDWR);
+	} else {
+		fd = filedesc;
+	}
+
+	if (fd == -1 && filename) {
+		perror(filename);
+		exit(EXIT_FAILURE);
+	}
 
 	/* read information about file configuration */
+	lseek(fd, 0, SEEK_SET);
 	size = read(fd, &conf, sizeof(conf));
 	if (size != sizeof(conf)) {
 		fprintf(stderr, "%s: fail read operation\n", filename);
@@ -76,7 +86,9 @@ void add_record(const char *filename, const char *id)
 		update_record(fd, rec_pos);
 	}
 
-	close(fd);
+	if (filename) {
+		close(fd);
+	}
 }
 
 void query_record(const char *filename, const char *id)
@@ -134,7 +146,46 @@ void list_records(struct input inp)
 
 void load_file(struct input inp)
 {
-	printf("Load_file_func\n");
+	int fd_dest, fd_src, size, state, id_pos, buff_pos, buff_size = 4096;
+	uint8_t *buff;
+	uint8_t id[ID_SIZE];
+	enum { OUT, IN };
+
+	fd_dest = open(inp.filename, O_RDWR);
+	if (fd_dest == -1) {
+		perror(inp.filename);
+		exit(EXIT_FAILURE);
+	}
+
+	fd_src = open(inp.load_filename, O_RDONLY);
+	if (fd_src == -1) {
+		perror(inp.load_filename);
+		exit(EXIT_FAILURE);
+	}
+
+	buff = (uint8_t *)malloc(buff_size);
+	state = OUT;
+	while ((size = read(fd_src, buff, buff_size)) > 0) {
+		for (buff_pos = 0; buff_pos < size; buff_pos++) {
+			if (buff[buff_pos] == '\n' && state == IN) {
+				state = OUT;
+				id[id_pos] = '\0';
+				id_pos = 0;
+				add_record(NULL, (char *)id, fd_dest);
+				continue;
+			} else if (id_pos == ID_SIZE - 1) {
+				continue;
+			} else {
+				state = IN;
+				id[id_pos] = buff[buff_pos];
+				id_pos++;
+			}
+		}
+		printf("From file %s read %d bytes\n", inp.load_filename, size);
+	}
+	free(buff);
+	close(fd_dest);
+	close(fd_src);
 }
 
 static int search_record(int fd, const char *id)

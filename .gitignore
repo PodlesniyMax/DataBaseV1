@@ -1,5 +1,6 @@
 prog
 DB
+TEST
 
 a.out
 *.o

@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 			remove_db(inp.filename);
 			break;
 		case ADD:
-			add_record(inp.filename, inp.id);
+			add_record(inp.filename, inp.id, 0);
 			break;
 		case QUERY:
 			query_record(inp.filename, inp.id);
