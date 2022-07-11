@@ -128,6 +128,11 @@ void list_records(struct input inp)
 		exit(EXIT_FAILURE);
 	}
 	read(fd, &conf, sizeof(conf));
+	if (conf.count_records == 0) {
+		free(buff);
+		close(fd);
+		return;
+	}
 	pos = (int)conf.start_position + (inp.list_start * (int)conf.record_size);
 	lseek(fd, pos, SEEK_SET);
 	while (inp.list_count > 0) {
@@ -181,7 +186,6 @@ void load_file(struct input inp)
 				id_pos++;
 			}
 		}
-		printf("From file %s read %d bytes\n", inp.load_filename, size);
 	}
 	free(buff);
 	close(fd_dest);
@@ -236,7 +240,6 @@ static void update_db_config(int fd, struct db_conf conf)
 {
 	lseek(fd, 0, SEEK_SET);
 	write(fd, &conf, sizeof(conf));
-	printf("func: update_db_conf\n");
 }
 
 static void update_record(int fd, int rec_pos)
@@ -248,7 +251,6 @@ static void update_record(int fd, int rec_pos)
 	rec.count++;
 	lseek(fd, rec_pos, SEEK_SET);
 	write(fd, &rec, sizeof(rec));
-	printf("func: update_record\n");
 }
 
 static int tree_search(int fd, int pos, const char *id)
@@ -287,7 +289,6 @@ static void mount_record_to_tree(int fd, int rec_pos, const char *id)
 	if (rec_pos == conf.start_position) {
 		return;
 	}
-	printf("Mount func\n");
 	parent_pos = search_parent(fd, conf.start_position, id);
 	lseek(fd, parent_pos, SEEK_SET);
 	read(fd, &rec, sizeof(rec));
@@ -307,7 +308,6 @@ static int search_parent(int fd, int pos, const char *id)
 
 	lseek(fd, pos, SEEK_SET);
 	read(fd, &rec, sizeof(rec));
-	printf("search_parent: %s\n", rec.id);
 
 	state = strcmp(id, rec.id);
 	if (state < 0 && rec.left) {
